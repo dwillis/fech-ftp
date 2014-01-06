@@ -1,6 +1,6 @@
 # FecFTP
 
-TODO: Write a gem description
+A Ruby library for retrieving and parsing FTP data downloads from the Federal Election Commission. Heavily dependent on the Remote Table gem. A work in progress.
 
 ## Installation
 
