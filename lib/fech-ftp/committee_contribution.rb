@@ -25,7 +25,7 @@ module Fech
           zipcode: row[:zipcode],
           employer: row[:employer],
           occupation: row[:occupation],
-          date: begin Date.parse(row[:date]) rescue row[:date] end,
+          date: begin Date.strptime(row[:date], "%m%d%Y") rescue row[:date] end,
           amount: row[:amount].to_f,
           other_committee_id: row[:other_committee_id], 
           transaction_id: row[:transaction_id],
