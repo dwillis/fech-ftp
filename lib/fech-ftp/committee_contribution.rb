@@ -1,4 +1,4 @@
-module FecFTP
+module Fech
   class CommitteeContribution
 
   	# corresponds to the itoth file described here:

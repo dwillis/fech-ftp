@@ -1,4 +1,4 @@
-module FecFTP
+module Fech
   class Candidate
     
     # corresponds to the FEC Candidate master file described here:

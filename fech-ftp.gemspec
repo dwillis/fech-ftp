@@ -1,11 +1,11 @@
 # coding: utf-8
 lib = File.expand_path('../lib', __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require 'FecFTP/version'
+require 'fech-ftp/version'
 
 Gem::Specification.new do |spec|
-  spec.name          = "FecFTP"
-  spec.version       = FecFTP::VERSION
+  spec.name          = "Fech-FTP"
+  spec.version       = Fech::FTP::VERSION
   spec.authors       = ["Derek Willis"]
   spec.email         = ["dwillis@gmail.com"]
   spec.summary       = %q{A Ruby interface for FTP data from the Federal Election Commission.}
@@ -20,6 +20,7 @@ Gem::Specification.new do |spec|
 
   spec.add_development_dependency "bundler", "~> 1.5"
   spec.add_development_dependency "rake"
+  spec.add_dependency "fech"
   spec.add_dependency "remote_table"
   spec.add_dependency "american_date"
 end

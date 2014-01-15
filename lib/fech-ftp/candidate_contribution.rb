@@ -1,4 +1,4 @@
-module FecFTP
+module Fech
   class CandidateContribution
 
     def self.load(cycle)

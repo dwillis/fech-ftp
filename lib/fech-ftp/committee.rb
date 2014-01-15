@@ -1,4 +1,4 @@
-module FecFTP
+module Fech
   class Committee
 
     # corresponds to the FEC Committee master file described here:
