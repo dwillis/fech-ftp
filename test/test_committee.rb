@@ -1,16 +1,18 @@
+require 'remote_table'
+require 'american_date'
 require 'minitest/autorun'
 
-class TestCommittee < MiniTest::Test
+class TestCommittee < MiniTest::Unit::TestCase
   
   def setup
     detail_cols = [:committee_id, :committee_name, :treasurer, :street_one, :street_two, :city, :state, :zipcode, :designation, :type, :party, :filing_frequency, :category, :connected_organization, :candidate_id]
-    detail = RemoteTable.new "file://#{File.expand_path('cm.txt', __FILE__)}", :col_sep => "|", :headers => detail_cols
+    detail = RemoteTable.new "file://#{File.expand_path('../cm.txt', __FILE__)}", :col_sep => "|", :headers => detail_cols
     @detail_rows = detail.entries
 
     summary_cols = [:committee_id, :committee_name, :type, :designation, :filing_frequency, :total_receipts, :transfers_from_affiliates, :individual_contributions, :pac_contributions, :candidate_contributions, 
     :candidate_loans, :total_loans_received, :total_disbursements, :transfers_to_affiliates, :individual_refunds, :committee_refunds, :candidate_loan_repayments, :loan_repayments, :beginning_year_cash, 
     :ending_cash, :debts_owed_by, :nonfederal_transfers_received, :contributions_to_committees, :independent_expenditures, :party_coordinated_expenditures, :nonfederal_share_expenditures, :coverage_end_date]
-    summary = RemoteTable.new "file://#{File.expand_path('webk.txt', __FILE__)}", :col_sep => "|", :headers => summary_cols
+    summary = RemoteTable.new "file://#{File.expand_path('../webk.txt', __FILE__)}", :col_sep => "|", :headers => summary_cols
     @summary_rows = summary.entries
     @summary_rows.each do |row|
       row.merge!({
@@ -47,12 +49,15 @@ class TestCommittee < MiniTest::Test
   end
   
   def test_that_committee_detail_is_properly_loaded
-    assert_equal "NORFOLK SOUTHERN CORPORATION GOOD GOVERNMENT FUND", rows[1][:committee_name]
+    assert_equal "NORFOLK SOUTHERN CORPORATION GOOD GOVERNMENT FUND", @detail_rows[1][:committee_name]
   end
   
-  def test_that_summary_parses_dates
-    assert_kind_of Date, @summary_rows.first[:date]
+  def test_that_summary_creates_dates
+    assert_equal Date.parse('09/30/2013'), @summary_rows.first[:coverage_end_date]
   end
-  
+
+  def test_that_amount_cols_are_floats
+    assert_kind_of Float, @summary_rows.first[:total_receipts]
+  end
   
 end
