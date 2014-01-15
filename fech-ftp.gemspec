@@ -5,7 +5,7 @@ require 'fech-ftp/version'
 
 Gem::Specification.new do |spec|
   spec.name          = "Fech-FTP"
-  spec.version       = Fech::FTP::VERSION
+  spec.version       = Fech::Ftp::VERSION
   spec.authors       = ["Derek Willis"]
   spec.email         = ["dwillis@gmail.com"]
   spec.summary       = %q{A Ruby interface for FTP data from the Federal Election Commission.}
