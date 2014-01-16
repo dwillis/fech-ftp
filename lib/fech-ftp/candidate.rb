@@ -4,7 +4,7 @@ module Fech
     # corresponds to the FEC Candidate master file described here:
     # http://www.fec.gov/finance/disclosure/metadata/DataDictionaryCandidateMaster.shtml
     def self.detail(cycle)
-      cols = [:candidate_id, :candidate_name, :party, :election_year, :office_state, :office, :district, :status, :committee_id, :street_one, :street_two, :city, :state, :zipcode]
+      cols = [:candidate_id, :candidate_name, :party, :election_year, :office_state, :office, :district, :incumbent_challenger_status, :candidate_status, :committee_id, :street_one, :street_two, :city, :state, :zipcode]
       url = "ftp://ftp.fec.gov/FEC/#{cycle}/cn#{cycle.to_s[2..3]}.zip"
       t = RemoteTable.new url, :filename => "cn.txt", :col_sep => "|", :headers => cols
       t.entries
