@@ -20,7 +20,35 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+Fech-FTP can be used by itself or in combination with Fech. To retrieve canonical details about candidates for an election cycle, pass the cycle into the following constructor:
+
+```ruby
+2.1.0 :001 > require 'fech-ftp'
+2.1.0 :002 > cands = Fech::Candidate.detail(2014)
+2.1.0 :003 > cands.first
+=> {:candidate_id=>"H0AK00097", :candidate_name=>"COX, JOHN ROBERT", :party=>"REP", :election_year=>"2012", :office_state=>"AK", :office=>"H", :district=>"00", :incumbent_challenger_status=>"C", :candidate_status=>"N", :committee_id=>"C00525261", :street_one=>"PO BOX 1092", :street_two=>"", :city=>"ANCHOR POINT", :state=>"AK", :zipcode=>"995561092"}
+```
+
+Similarly, for committee details:
+
+```ruby
+2.1.0 :004 > cmtes = Fech::Committee.detail(2014)
+2.1.0 :005 > cmtes[500]
+ => {:committee_id=>"C00089086", :committee_name=>"THE AMERICAN OCCUPATIONAL THERAPY ASSOCIATION, INC. POLITICAL ACTION COMMITTEE (AOTPAC)", :treasurer=>"METZLER, CHRISTINA A.", :street_one=>"4720 MONTGOMERY LANE, SUITE 200", :street_two=>"", :city=>"BETHESDA", :state=>"MD", :zipcode=>"208143449", :designation=>"B", :type=>"Q", :party=>"", :filing_frequency=>"M", :category=>"M", :connected_organization=>"THE AMERICAN OCCUPATIONAL THERAPY ASSOCIATION, INC.", :candidate_id=>""}
+```
+
+Both candidates and committees have summary methods that return fundraising information about candidates and committees:
+
+```ruby
+2.1.0 :006 > candsumm = Fech::Candidate.current_summary(2014) # current candidates only
+2.1.0 :007 > candsumm.first
+ => {:candidate_id=>"H2AK00101", :candidate_name=>"MOORE, MATTHEW EDWARD", :status=>"C", :party_code=>"1", :party=>"DEM", :total_receipts=>15749.5, :transfers_from_authorized=>0.0, :total_disbursements=>13376.95, :transfers_to_authorized=>0.0, :beginning_cash=>0.0, :ending_cash=>2372.55, :candidate_contributions=>0.0, :candidate_loans=>12000.0, :other_loans=>0.0, :candidate_loan_repayments=>0.0, :other_loan_repayments=>0.0, :debts_owed_by=>12100.0, :total_individual_contributions=>3741.5, :office_state=>"AK", :district=>"00", :special_election_status=>"", :primary_election_status=>"", :runoff_election_status=>"", :general_election_status=>"", :general_election_percent=>0.0, :pac_contributions=>0.0, :party_contributions=>0.0, :coverage_end_date=>Mon, 30 Sep 2013, :individual_refunds=>0.0, :committee_refunds=>0.0}
+2.1.0 :008 > cmtesumm = Fech::Committee.summary(2014)
+2.1.0 :009 > cmtesumm[6000]
+ => {:committee_id=>"C00324103", :committee_name=>"NCR CORPORATION POLITICAL ACTION COMMITTEE (NCRPAC)", :type=>"Q", :designation=>"B", :filing_frequency=>"M", :total_receipts=>12426.5, :transfers_from_affiliates=>0.0, :individual_contributions=>12426.5, :pac_contributions=>0.0, :candidate_contributions=>0.0, :candidate_loans=>0.0, :total_loans_received=>0.0, :total_disbursements=>8000.0, :transfers_to_affiliates=>0.0, :individual_refunds=>0.0, :committee_refunds=>0.0, :candidate_loan_repayments=>0.0, :loan_repayments=>0.0, :beginning_year_cash=>16721.66, :ending_cash=>21148.16, :debts_owed_by=>0.0, :nonfederal_transfers_received=>0.0, :contributions_to_committees=>7000.0, :independent_expenditures=>0.0, :party_coordinated_expenditures=>0.0, :nonfederal_share_expenditures=>0.0, :coverage_end_date=>Sat, 30 Nov 2013}
+```
+
+There are additional classes representing [PAC contributions to candidates](http://www.fec.gov/finance/disclosure/metadata/DataDictionaryContributionstoCandidates.shtml) (`CandidateContribution`) and [transactions involving two committees](http://www.fec.gov/finance/disclosure/metadata/DataDictionaryCommitteetoCommittee.shtml) (`CommitteeContribution`). Be advised that both of the FTP files loaded by these classes are large and can take minutes to parse. They are appropriately used for background processing or data loading purposes, not for providing a live API.
 
 ## Contributing
 
