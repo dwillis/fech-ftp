@@ -6,6 +6,12 @@ module Fech
         :candidate_loans, :total_loans_received, :total_disbursements, :transfers_to_affiliates, :individual_refunds, :committee_refunds, :candidate_loan_repayments, :loan_repayments, :beginning_year_cash, 
         :ending_cash, :debts_owed_by, :nonfederal_transfers_received, :contributions_to_committees, :independent_expenditures, :party_coordinated_expenditures, :nonfederal_share_expenditures, :coverage_end_date]
 
+    def self.write_to_csv(method, cycle)
+      headers = method == 'detail' ? DETAIL_COLS : SUMMARY_COLS
+      rows = self.send(method, cycle)
+      Fech::Utilities.write_to_csv("committees_#{method}_#{cycle}", headers, rows)
+    end
+
     # corresponds to the FEC Committee master file described here:
     # http://www.fec.gov/finance/disclosure/metadata/DataDictionaryCommitteeMaster.shtml
     def self.detail(cycle)
