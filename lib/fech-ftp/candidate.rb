@@ -1,24 +1,31 @@
 module Fech
   class Candidate
-    
+
+    DETAIL_COLS = [:candidate_id, :candidate_name, :party, :election_year, :office_state, :office, :district, :incumbent_challenger_status, :candidate_status, :committee_id, :street_one, :street_two, :city, :state, :zipcode]
+    SUMMARY_COLS = [:candidate_id, :candidate_name, :status, :party_code, :party, :total_receipts, :transfers_from_authorized, :total_disbursements, :transfers_to_authorized, :beginning_cash, 
+        :ending_cash, :candidate_contributions, :candidate_loans, :other_loans, :candidate_loan_repayments, :other_loan_repayments, :debts_owed_by, :total_individual_contributions, 
+        :office_state, :district, :special_election_status, :primary_election_status, :runoff_election_status, :general_election_status, :general_election_percent, :pac_contributions, 
+        :party_contributions, :coverage_end_date, :individual_refunds, :committee_refunds]
+
+    def self.write_to_csv(method, cycle)
+      headers = method == 'detail' ? DETAIL_COLS : SUMMARY_COLS
+      rows = self.send(method, cycle)
+      Fech::Utilities.write_to_csv("candidates_#{method}_#{cycle}", headers, rows)
+    end
+
     # corresponds to the FEC Candidate master file described here:
     # http://www.fec.gov/finance/disclosure/metadata/DataDictionaryCandidateMaster.shtml
     def self.detail(cycle)
-      cols = [:candidate_id, :candidate_name, :party, :election_year, :office_state, :office, :district, :incumbent_challenger_status, :candidate_status, :committee_id, :street_one, :street_two, :city, :state, :zipcode]
       url = "ftp://ftp.fec.gov/FEC/#{cycle}/cn#{cycle.to_s[2..3]}.zip"
-      t = RemoteTable.new url, :filename => "cn.txt", :col_sep => "|", :headers => cols
+      t = RemoteTable.new url, :filename => "cn.txt", :col_sep => "|", :headers => DETAIL_COLS
       t.entries
     end
     
     # summary financial information for current candidates in a cycle.
     # http://www.fec.gov/finance/disclosure/metadata/DataDictionaryWEBL.shtml
     def self.current_summary(cycle)
-      cols = [:candidate_id, :candidate_name, :status, :party_code, :party, :total_receipts, :transfers_from_authorized, :total_disbursements, :transfers_to_authorized, :beginning_cash, 
-        :ending_cash, :candidate_contributions, :candidate_loans, :other_loans, :candidate_loan_repayments, :other_loan_repayments, :debts_owed_by, :total_individual_contributions, 
-        :office_state, :district, :special_election_status, :primary_election_status, :runoff_election_status, :general_election_status, :general_election_percent, :pac_contributions, 
-        :party_contributions, :coverage_end_date, :individual_refunds, :committee_refunds]
       url = "ftp://ftp.fec.gov/FEC/#{cycle}/webl#{cycle.to_s[2..3]}.zip"
-      t = RemoteTable.new url, :filename => "webl#{cycle.to_s[2..3]}.txt", :col_sep => "|", :headers => cols
+      t = RemoteTable.new url, :filename => "webl#{cycle.to_s[2..3]}.txt", :col_sep => "|", :headers => SUMMARY_COLS
       rows = t.entries
       rows.each do |row|
         row.merge!({
@@ -60,12 +67,8 @@ module Fech
     # summary financial information for all candidates in a cycle.
     # http://www.fec.gov/finance/disclosure/metadata/DataDictionaryWEBALL.shtml
     def self.all_summary(cycle)
-      cols = [:candidate_id, :candidate_name, :status, :party_code, :party, :total_receipts, :transfers_from_authorized, :total_disbursements, :transfers_to_authorized, :beginning_cash, 
-        :ending_cash, :candidate_contributions, :candidate_loans, :other_loans, :candidate_loan_repayments, :other_loan_repayments, :debts_owed_by, :total_individual_contributions, 
-        :office_state, :district, :special_election_status, :primary_election_status, :runoff_election_status, :general_election_status, :general_election_percent, :pac_contributions, 
-        :party_contributions, :coverage_end_date, :individual_refunds, :committee_refunds]
       url = "ftp://ftp.fec.gov/FEC/#{cycle}/weball#{cycle.to_s[2..3]}.zip"
-      t = RemoteTable.new url, :filename => "weball#{cycle.to_s[2..3]}.txt", :col_sep => "|", :headers => cols
+      t = RemoteTable.new url, :filename => "weball#{cycle.to_s[2..3]}.txt", :col_sep => "|", :headers => SUMMARY_COLS
       rows = t.entries
       rows.each do |row|
         row.merge!({
