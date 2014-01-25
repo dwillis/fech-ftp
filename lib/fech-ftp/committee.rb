@@ -59,5 +59,11 @@ module Fech
       rows
     end
 
+    def self.load_superpacs
+      url = "http://www.fec.gov/press/press2011/ieoc_alpha.shtml"
+      t = RemoteTable.new url, :row_xpath => '//table/tr', :column_xpath => 'td', :encoding => 'windows-1252', :headers => %w{ row_id committee_id committee_name filing_frequency}
+      t.entries
+    end
+
   end
 end
