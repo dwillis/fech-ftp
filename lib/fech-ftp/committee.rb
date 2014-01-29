@@ -5,6 +5,7 @@ module Fech
     SUMMARY_COLS = [:committee_id, :committee_name, :type, :designation, :filing_frequency, :total_receipts, :transfers_from_affiliates, :individual_contributions, :pac_contributions, :candidate_contributions, 
         :candidate_loans, :total_loans_received, :total_disbursements, :transfers_to_affiliates, :individual_refunds, :committee_refunds, :candidate_loan_repayments, :loan_repayments, :beginning_year_cash, 
         :ending_cash, :debts_owed_by, :nonfederal_transfers_received, :contributions_to_committees, :independent_expenditures, :party_coordinated_expenditures, :nonfederal_share_expenditures, :coverage_end_date]
+    LINKAGE_COLS = [:candidate_id, :candidate_election_year, :election_year, :committee_id, :type, :designation, :linkage_id]
 
     def self.write_to_csv(method, cycle)
       headers = method == 'detail' ? DETAIL_COLS : SUMMARY_COLS
@@ -55,6 +56,24 @@ module Fech
           nonfederal_share_expenditures: row[:nonfederal_share_expenditures].to_f,
           coverage_end_date: begin Date.parse(row[:coverage_end_date]) rescue row[:coverage_end_date] end
          })
+      end
+      rows
+    end
+
+    def self.linkages(cycle)
+      url = "ftp://ftp.fec.gov/FEC/#{cycle}/ccl#{cycle.to_s[2..3]}.zip"
+      t = RemoteTable.new url, :filename => "ccl.txt", :col_sep => "|", :headers => LINKAGE_COLS
+      rows = t.entries
+      rows.each do |row|
+        row.merge!({
+          candidate_id: row[:candidate_id],
+          candidate_election_year: row[:candidate_election_year],
+          election_year: row[:election_year],
+          committee_id: row[:committee_id], 
+          type: row[:type], 
+          designation: row[:designation],
+          linkage_id: row[:linkage_id]
+        })
       end
       rows
     end
