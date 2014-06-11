@@ -1,24 +1,29 @@
 module Fech
   class CandidateContribution < FechFTP
 
-    def initialize(cycle)
-      @cycle = cycle
-      @file  = "pas2#{cycle.to_s[2..3]}.zip"
-      @contributions = []
-      @headers = [
-        :committee_id, :amendment, :report_type, :primary_general, :microfilm,
-        :transaction_type, :entity_type, :name, :city, :state, :zipcode,
-        :employer, :occupation, :transaction_date, :amount, :other_committee_id, :candidate_id,
-        :transaction_id, :filing_id, :memo_code, :memo_text, :fec_record_number
-      ]
+    def initialize(cycle, opts={})
+      @cycle   = cycle
+      @file    = "pas2#{cycle.to_s[2..3]}.zip"
+      @mode    = opts[:mode]
+      @records = []
     end
 
-    def fetch
-      fetch_file(@cycle, @file) do |data|
-        data.each { |row| @contributions << format_row(row, @headers) }
+    def table(receiver=nil)
+      fetch_file(@cycle, @file) do |row, filename|
+        entry = format_row(row, HEADERS)
+
+        if @mode
+          receiver << entry
+        else
+          @records << format_row(entry, HEADERS)
+        end
       end
 
-      @contributions
+      if receiver
+        receiver.close
+      else
+        @records
+      end
     end
   end
 end

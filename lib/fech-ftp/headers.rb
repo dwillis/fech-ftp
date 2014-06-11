@@ -1,4 +1,22 @@
 module Fech
+  class CommitteeContribution < FechFTP
+    HEADERS = [
+      :committee_id, :amendment, :report_type, :primary_general, :microfilm,
+      :transaction_type, :entity_type, :name, :city, :state, :zipcode,
+      :employer, :occupation, :transaction_date, :amount, :other_committee_id, :candidate_id,
+      :transaction_id, :filing_id, :memo_code, :memo_text, :fec_record_number
+    ]
+  end
+
+  class IndividualContribution < FechFTP
+    HEADERS = [
+      :committee_id, :amendment_indicator, :report_type, :election_type,
+      :image_number, :trans_type, :entity_type, :name, :city, :state, :zip,
+      :employer, :occupation, :trans_date, :trans_amount, :other_id, :trans_id,
+      :filing_id, :memo_cd, :memo_txt, :fec_record_number
+    ]
+  end
+
   class Committee < FechFTP
     HEADERS = {
       detail: {

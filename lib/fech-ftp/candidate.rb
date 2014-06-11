@@ -1,24 +1,32 @@
-require 'benchmark'
-require 'remote_table'
 module Fech
   class Candidate < FechFTP
 
-    def initialize(cycle, type)
+    def initialize(cycle, opts={})
       @cycle   = cycle
-      @type    = type
+      @type    = opts[:type]
+      @mode    = opts[:mode]
       @records = []
     end
 
-
-    def fetch
+    def table(receiver=nil)
       file = HEADERS[@type][:file] + "#{@cycle.to_s[2..3]}.zip"
       headers = HEADERS[@type][:headers]
 
-      fetch_file(@cycle, file) do |data|
-        data.each { |row| @records << format_row(row, headers) }
+      fetch_file(@cycle, file) do |row, fi|
+        entry = format_row(row, headers)
+
+        if @mode
+          receiver << entry
+        else
+          @records << format_row(entry, headers)
+        end
       end
 
-      @records
+      if receiver
+        receiver.close
+      else
+        @records
+      end
     end
   end
 end

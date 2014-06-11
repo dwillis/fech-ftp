@@ -1,14 +1,12 @@
 module Fech
-  class CommitteeContribution < FechFTP
+  class IndividualContribution < FechFTP
 
-    def initialize(cycle)
+    def initialize(cycle, opts={})
       @cycle   = cycle
-      @file    = "oth#{cycle.to_s[2..3]}.zip"
+      @file    = "indiv#{cycle.to_s[2..3]}.zip"
+      @mode    = opts[:mode]
       @records = []
     end
-
-    # corresponds to the itoth file described here:
-    # http://www.fec.gov/finance/disclosure/metadata/DataDictionaryCommitteetoCommittee.shtml
 
     def table(receiver=nil)
       fetch_file(@cycle, @file) do |row, filename|
