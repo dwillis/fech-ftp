@@ -18,7 +18,7 @@ module Fech
         if @mode
           receiver << entry
         else
-          @records << format_row(entry, headers)
+          @records << entry
         end
       end
 

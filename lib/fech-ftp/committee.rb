@@ -12,13 +12,14 @@ module Fech
       file = HEADERS[@type][:file] + "#{@cycle.to_s[2..3]}.zip"
       headers = HEADERS[@type][:headers]
 
-      fetch_file(@cycle, file) do |row, fi|
+
+      fetch_file(@cycle, file) do |row|
         entry = format_row(row, headers)
 
         if @mode
           receiver << entry
         else
-          @records << format_row(entry, headers)
+          @records << entry
         end
       end
 

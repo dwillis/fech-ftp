@@ -9,13 +9,13 @@ module Fech
     end
 
     def table(receiver=nil)
-      fetch_file(@cycle, @file) do |row, filename|
+      fetch_file(@cycle, @file) do |row|
         entry = format_row(row, HEADERS)
 
         if @mode
           receiver << entry
         else
-          @records << format_row(entry, HEADERS)
+          @records << entry
         end
       end
 

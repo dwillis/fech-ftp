@@ -19,7 +19,6 @@ module Fech
 
       headers.each_with_index do |k,i|
         if k.to_s =~ /cash|amount|contributions|total|loan|transfer|debts|refund|expenditure/
-        # if float_fields.any? { |field| field.include?(k.to_s) }
           hash[k] = line[i].to_f
         elsif k == :filing_id
           hash[k] = line[i].to_i

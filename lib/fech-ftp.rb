@@ -15,7 +15,7 @@ require 'csv'
 require 'pry'
 
 module Fech
-  def self.retrieve_table(table, cycle, opts={})
+  def self.retrieve_table(opts={})
     fetch = case table
             when :candidate_contribution
               CandidateContribution.new(cycle, opts)
