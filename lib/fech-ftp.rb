@@ -15,7 +15,9 @@ require 'csv'
 require 'pry'
 
 module Fech
-  def self.retrieve_table(opts={})
+  # usage examples:
+  # Fech.retrieve_table()
+  def self.retrieve_table(table, cycle, opts={})
     fetch = case table
             when :candidate_contribution
               CandidateContribution.new(cycle, opts)
