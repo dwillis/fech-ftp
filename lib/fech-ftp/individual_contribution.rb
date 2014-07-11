@@ -1,29 +1,13 @@
 module Fech
-  class IndividualContribution < FechFTP
-
-    def initialize(cycle, opts={})
-      @cycle   = cycle
-      @file    = "indiv#{cycle.to_s[2..3]}.zip"
-      @mode    = opts[:mode]
-      @records = []
-    end
-
-    def table(receiver=nil)
-      fetch_file(@cycle, @file) do |row|
-        entry = format_row(row, HEADERS)
-
-        if @mode
-          receiver << entry
-        else
-          @records << entry
-        end
-      end
-
-      if receiver
-        receiver.close
-      else
-        @records
-      end
-    end
+  class IndividualContribution
+    HEADERS = {
+      file: 'indiv',
+      headers: [
+        :committee_id, :amendment_indicator, :report_type, :election_type,
+        :image_number, :trans_type, :entity_type, :name, :city, :state, :zip,
+        :employer, :occupation, :trans_date, :trans_amount, :other_id, :trans_id,
+        :filing_id, :memo_cd, :memo_txt, :fec_record_number
+      ]
+    }
   end
 end

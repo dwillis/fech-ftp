@@ -1,31 +1,13 @@
 module Fech
-  class CommitteeContribution < FechFTP
-
-    def initialize(cycle)
-      @cycle   = cycle
-      @file    = "oth#{cycle.to_s[2..3]}.zip"
-      @records = []
-    end
-
-    # corresponds to the itoth file described here:
-    # http://www.fec.gov/finance/disclosure/metadata/DataDictionaryCommitteetoCommittee.shtml
-
-    def table(receiver=nil)
-      fetch_file(@cycle, @file) do |row|
-        entry = format_row(row, HEADERS)
-
-        if @mode
-          receiver << entry
-        else
-          @records << entry
-        end
-      end
-
-      if receiver
-        receiver.close
-      else
-        @records
-      end
-    end
+  class CommitteeContribution
+    HEADERS = {
+      file: "oth",
+      headers: [
+        :committee_id, :amendment, :report_type, :primary_general, :microfilm,
+        :transaction_type, :entity_type, :name, :city, :state, :zipcode,
+        :employer, :occupation, :transaction_date, :amount, :other_committee_id, :candidate_id,
+        :transaction_id, :filing_id, :memo_code, :memo_text, :fec_record_number
+      ]
+    }
   end
 end
