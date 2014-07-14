@@ -29,6 +29,14 @@ Fech-FTP can be used by itself or in combination with Fech. To retrieve canonica
 => {:candidate_id=>"H0AK00097", :candidate_name=>"COX, JOHN ROBERT", :party=>"REP", :election_year=>"2012", :office_state=>"AK", :office=>"H", :district=>"00", :incumbent_challenger_status=>"C", :candidate_status=>"N", :committee_id=>"C00525261", :street_one=>"PO BOX 1092", :street_two=>"", :city=>"ANCHOR POINT", :state=>"AK", :zipcode=>"995561092"}
 ```
 
+If you want to have the data transferred into an csv, add the option `mode: :to_csv`, like so:
+
+```
+Fech::Candidate.detail(2014, mode: :to_csv)
+```
+
+The filename of the csv file will match the FEC's naming conventions.
+
 Similarly, for committee details:
 
 ```ruby
