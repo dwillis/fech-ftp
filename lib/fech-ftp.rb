@@ -12,7 +12,6 @@ require 'zip'
 require 'remote_table'
 require 'american_date'
 require 'csv'
-require 'pry'
 
 module Fech
   class Utilities

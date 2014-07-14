@@ -3,7 +3,6 @@ module Fech
     def initialize(cycle, opts={})
       @cycle    = cycle
       @headers  = opts[:headers]
-      @remote   = opts[:remote]
       @file     = opts[:file]
       @mode     = opts[:mode]
       @receiver = opts[:db] || receiver
@@ -18,12 +17,7 @@ module Fech
     end
 
     def retrieve_data
-      if super_pacs?
-        @remote.each { |row| enter_row(row) }
-      else
-        fetch_file { |row| enter_row(row) }
-      end
-
+      fetch_file { |row| enter_row(row) }
       return @receiver
     end
 
@@ -36,10 +30,6 @@ module Fech
       else
         @receiver << row
       end
-    end
-
-    def super_pacs?
-      @remote
     end
 
     def db_empty?
