@@ -1,5 +1,5 @@
 module Fech
-  class IndividualContribution
+  class IndividualContribution < Table
     HEADERS = {
       file: 'indiv',
       headers: [

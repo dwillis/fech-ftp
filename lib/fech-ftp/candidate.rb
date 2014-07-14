@@ -1,5 +1,5 @@
 module Fech
-  class Candidate
+  class Candidate < Table
     HEADERS = {
       detail: {
         file: 'cn',

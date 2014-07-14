@@ -1,5 +1,5 @@
 module Fech
-  class CommitteeContribution
+  class CommitteeContribution < Table
     HEADERS = {
       file: "oth",
       headers: [

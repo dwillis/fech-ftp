@@ -1,5 +1,5 @@
 module Fech
-  class Committee
+  class Committee < Table
     HEADERS = {
       detail: {
         file: 'cm',
@@ -23,25 +23,13 @@ module Fech
           :nonfederal_share_expenditures, :coverage_end_date
         ]
       },
-
       linkage: {
         file: 'ccl',
         headers: [
           :committee_id, :candidate_election_year, :election_year,
           :candidate_id, :type, :designation, :linkage_id
         ]
-      },
-
-      load_superpacs: {
-        file: '',
-        headers: %w{ row_id committee_id committee_name filing_frequency}
       }
     }
-
-    def self.load_superpacs
-      url = "http://www.fec.gov/press/press2011/ieoc_alpha.shtml"
-      t = RemoteTable.new url, :row_xpath => '//table/tr', :column_xpath => 'td', :encoding => 'windows-1252', :headers => HEADERS[:load_superpacs][:headers]
-      t.entries
-    end
   end
 end
