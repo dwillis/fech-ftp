@@ -1,14 +1,20 @@
 module Fech
   class Table
-
-    def initialize(opts={})
+    def initialize(cycle, opts={})
+      @cycle    = cycle
+      @headers  = opts[:headers]
       @remote   = opts[:remote]
       @file     = opts[:file]
-      @headers  = opts[:headers]
       @mode     = opts[:mode]
-      @cycle    = opts[:cycle]
-      @type     = opts[:type]
-      @receiver = opts[:receiver] || []
+      @receiver = opts[:db] || receiver
+    end
+
+    def receiver
+      if @mode == :to_csv
+        CSV.open("#{@file}#{@cycle.to_s[2..3]}.csv", 'a+', headers: @headers, write_headers: true)
+      else
+        []
+      end
     end
 
     def retrieve_data
@@ -18,7 +24,7 @@ module Fech
         fetch_file { |row| enter_row(row) }
       end
 
-      @receiver if @receiver.is_a?(Array)
+      return @receiver
     end
 
     def enter_row(row)
@@ -56,13 +62,14 @@ module Fech
     end
 
     def fetch_file(&blk)
+      zip_file = "#{@file}#{@cycle.to_s[2..3]}.zip"
       Net::FTP.open("ftp.fec.gov") do |ftp|
         ftp.login
         ftp.chdir("./FEC/#{@cycle}")
-        ftp.get(@file, "./#{@file}")
+        ftp.get(zip_file, "./#{zip_file}")
       end
 
-      unzip(&blk)
+      unzip(zip_file, &blk)
     end
 
     def format_row(line)
@@ -97,11 +104,11 @@ module Fech
       end
     end
 
-    def unzip(&blk)
-      Zip::File.open(@file) do |zip|
+    def unzip(zip_file, &blk)
+      Zip::File.open(zip_file) do |zip|
         zip.each do |entry|
           entry.extract("./#{entry.name}") if !File.file?(entry.name)
-          File.delete(@file)
+          File.delete(zip_file)
           File.foreach(entry.name) do |row|
             blk.call(format_row(row))
           end
