@@ -4,7 +4,7 @@ require 'minitest/autorun'
 class TestIndividual < Minitest::Test
   def setup
     indiv_file = File.readlines('test/itcont.txt').to_a
-    indiv_table = Fech::Table.new(headers: Fech::IndividualContribution::HEADERS[:headers])
+    indiv_table = Fech::Table.new(2012, headers: Fech::IndividualContribution::HEADERS[:headers])
 
     @row = indiv_table.format_row(indiv_file[0])
   end

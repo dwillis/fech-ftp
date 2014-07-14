@@ -4,10 +4,10 @@ require 'minitest/autorun'
 class TestCandidate < MiniTest::Test
   def setup
     detail_file = File.readlines('test/cn.txt').to_a
-    candidate_detail = Fech::Table.new(headers: Fech::Candidate::HEADERS[:detail][:headers])
+    candidate_detail = Fech::Candidate.new(2012, headers: Fech::Candidate::HEADERS[:detail][:headers])
 
     summary_file = File.readlines('test/webl.txt').to_a
-    candidate_summary = Fech::Table.new(headers: Fech::Candidate::HEADERS[:summary_current][:headers])
+    candidate_summary = Fech::Candidate.new(2012, headers: Fech::Candidate::HEADERS[:summary_current][:headers])
 
     @detail_row = candidate_detail.format_row(detail_file[3])
     @summary_row = candidate_summary.format_row(summary_file[3])
