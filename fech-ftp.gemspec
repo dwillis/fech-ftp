@@ -10,9 +10,8 @@ Gem::Specification.new do |spec|
   spec.email         = ["dwillis@gmail.com"]
   spec.summary       = %q{A Ruby interface for FTP data from the Federal Election Commission.}
   spec.description   = %q{Retrieve and parse summary and detailed federal campaign finance data.}
-  spec.homepage      = ""
+  spec.homepage      = "https://github.com/dwillis/fech-ftp"
   spec.license       = "MIT"
-
   spec.files         = `git ls-files`.split($/)
   spec.executables   = spec.files.grep(%r{^bin/}) { |f| File.basename(f) }
   spec.test_files    = spec.files.grep(%r{^(test|spec|features)/})
