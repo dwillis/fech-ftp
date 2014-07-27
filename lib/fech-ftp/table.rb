@@ -5,7 +5,32 @@ module Fech
       @headers  = opts[:headers]
       @file     = opts[:file]
       @format   = opts[:format]
+      @receiver = opts[:connection] || receiver
       @parser   = parser
+    end
+
+    def receiver
+      if @format == :csv
+        CSV.open("#{@file}#{@cycle.to_s[2..3]}.csv", 'a+', headers: @headers, write_headers: true)
+      else
+        []
+      end
+    end
+
+    def retrieve_data
+      fetch_file { |row| enter_row(row) }
+      return @receiver
+    end
+
+    def enter_row(row)
+      case @format
+      when :db
+        table_exist? ? @receiver << row : create_table(row)
+      when :csv
+        @receiver << row.values
+      else
+        @receiver << row
+      end
     end
 
     # the @receiver obj is the database itself.
