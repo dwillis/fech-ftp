@@ -7,7 +7,7 @@ class TestCommittee < MiniTest::Test
     cm_detail   = Fech::Table.new(2012, headers: Fech::Committee::HEADERS[:detail][:headers])
 
     summary_file = File.readlines('test/webk.txt').to_a
-    cm_summary   = Fech::Table.new(2012, headers: Fech::Committee::HEADERS[:summary][:headers])
+    cm_summary   = Fech::Table.new(2012, headers: Fech::Committee::HEADERS[:summary_all][:headers])
 
     @summary_row = cm_summary.format_row(summary_file[1])
     @detail_row  = cm_detail.format_row(detail_file[1])
