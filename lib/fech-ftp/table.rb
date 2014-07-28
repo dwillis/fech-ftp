@@ -87,24 +87,8 @@ module Fech
       line = line.encode('UTF-8', invalid: :replace, replace: ' ').chomp.split("|")
 
       @parser.each { |k,blk| hash[k] = blk.call(line) }
-      # @headers.each_with_index do |k,i|
-      #   if k.to_s =~ /cash|amount|contributions|total|loan|transfer|debts|refund|expenditure/
-      #     hash[k] = line[i].to_f
-      #   elsif k == :filing_id
-      #     hash[k] = line[i].to_i
-      #   elsif k.to_s =~ /_date/
-      #     hash[k] =
-      #       begin
-      #         parse_date(line[i])
-      #       rescue ArgumentError
-      #         line[i]
-      #       end
-      #   else
-      #     hash[k] = line[i]
-      #   end
-      # end
 
-      hash
+      return hash
     end
 
     def parse_date(date)
