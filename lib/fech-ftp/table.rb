@@ -6,6 +6,7 @@ module Fech
       @file     = opts[:file]
       @mode     = opts[:mode]
       @receiver = opts[:db] || receiver
+      @parser   = parser
     end
 
     def receiver
@@ -48,6 +49,7 @@ module Fech
           add_column k, v.class
         end
       end
+
       @receiver << row
     end
 
@@ -56,32 +58,51 @@ module Fech
       Net::FTP.open("ftp.fec.gov") do |ftp|
         ftp.login
         ftp.chdir("./FEC/#{@cycle}")
-        ftp.get(zip_file, "./#{zip_file}")
+        begin
+          ftp.get(zip_file, "./#{zip_file}")
+        rescue Net::FTPPermError
+          raise 'File not found - please try the other methods'
+        end
       end
 
       unzip(zip_file, &blk)
+    end
+
+    def parser
+      @headers.map.with_index do |h,i|
+        if h.to_s =~ /cash|amount|contributions|total|loan|transfer|debts|refund|expenditure/
+          [h, ->(line) { line[i].to_f }]
+        elsif h == :filing_id
+          [h, ->(line) { line[i].to_i }]
+        elsif h.to_s =~ /_date/
+          [h, ->(line) { parse_date(line[i]) }]
+        else
+          [h, ->(line) { line[i] }]
+        end
+      end
     end
 
     def format_row(line)
       hash = {}
       line = line.encode('UTF-8', invalid: :replace, replace: ' ').chomp.split("|")
 
-      @headers.each_with_index do |k,i|
-        if k.to_s =~ /cash|amount|contributions|total|loan|transfer|debts|refund|expenditure/
-          hash[k] = line[i].to_f
-        elsif k == :filing_id
-          hash[k] = line[i].to_i
-        elsif k.to_s =~ /_date/
-          hash[k] =
-            begin
-              parse_date(line[i])
-            rescue ArgumentError
-              line[i]
-            end
-        else
-          hash[k] = line[i]
-        end
-      end
+      @parser.each { |k,blk| hash[k] = blk.call(line) }
+      # @headers.each_with_index do |k,i|
+      #   if k.to_s =~ /cash|amount|contributions|total|loan|transfer|debts|refund|expenditure/
+      #     hash[k] = line[i].to_f
+      #   elsif k == :filing_id
+      #     hash[k] = line[i].to_i
+      #   elsif k.to_s =~ /_date/
+      #     hash[k] =
+      #       begin
+      #         parse_date(line[i])
+      #       rescue ArgumentError
+      #         line[i]
+      #       end
+      #   else
+      #     hash[k] = line[i]
+      #   end
+      # end
 
       hash
     end
