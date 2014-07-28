@@ -9,7 +9,7 @@ module Fech
           :filing_frequency, :category, :connected_organization, :candidate_id
         ]
       },
-      summary: {
+      summary_all: {
         file: 'webk',
         headers: [
           :committee_id, :committee_name, :type, :designation, :filing_frequency,
