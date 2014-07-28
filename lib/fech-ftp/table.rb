@@ -5,11 +5,47 @@ module Fech
       @headers  = opts[:headers]
       @file     = opts[:file]
       @format   = opts[:format]
+      @receiver = opts[:connection]
       @parser   = parser
+    end
+
+    def retrieve_data
+      fetch_file { |row| enter_row(row) }
+      return @receiver
+    end
+
+    def enter_row(row)
+      case @format
+      when :db
+        table_exist? ? @receiver << row : create_table(row)
+      when :csv
+        @receiver << row.values
+      else
+        @receiver << row
+      end
     end
 
     # the @receiver obj is the database itself.
     # This assumes the table needs to be created.
+
+    def table_exist?
+      @receiver.respond_to? :columns
+    end
+
+    def create_table(row)
+      db, table = @receiver
+      table = table.to_s.pluralize.to_sym
+      db.create_table(table) { primary_key :id }
+
+      row.each do |k,v|
+        db.alter_table table do
+          add_column k, v.class
+        end
+      end
+
+      @receiver = db[table]
+      @receiver << row
+    end
 
     def fetch_file(&blk)
       zip_file = "#{@file}#{@cycle.to_s[2..3]}.zip"
