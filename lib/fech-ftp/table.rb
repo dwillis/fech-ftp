@@ -5,7 +5,7 @@ module Fech
       @headers  = opts[:headers]
       @file     = opts[:file]
       @format   = opts[:format]
-      @receiver = opts[:connection]
+      @receiver = opts[:connection] || receiver
       @parser   = parser
     end
 
