@@ -11,6 +11,8 @@ require "net/ftp"
 require 'zip'
 require 'remote_table'
 require 'american_date'
+require 'sqlite3'
+require 'sequel'
 require 'csv'
 
 module Fech
