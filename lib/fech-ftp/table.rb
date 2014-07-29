@@ -4,13 +4,13 @@ module Fech
       @cycle    = cycle
       @headers  = opts[:headers]
       @file     = opts[:file]
-      @mode     = opts[:mode]
-      @receiver = opts[:db] || receiver
+      @format   = opts[:format]
+      @receiver = opts[:connection] || receiver
       @parser   = parser
     end
 
     def receiver
-      if @mode == :to_csv
+      if @format == :csv
         CSV.open("#{@file}#{@cycle.to_s[2..3]}.csv", 'a+', headers: @headers, write_headers: true)
       else
         []
@@ -23,10 +23,10 @@ module Fech
     end
 
     def enter_row(row)
-      case @mode
-      when :to_db
+      case @format
+      when :db
         db_empty? ? create_columns(row) : @receiver << row
-      when :to_csv
+      when :csv
         @receiver << row.values
       else
         @receiver << row
