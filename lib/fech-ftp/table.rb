@@ -46,8 +46,9 @@ module Fech
       db.create_table(table) { primary_key :id }
 
       row.each do |k,v|
+        v = v.nil? ? String : v.class
         db.alter_table table do
-          add_column k, v.class
+          add_column k, v
         end
       end
 
