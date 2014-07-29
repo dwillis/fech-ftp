@@ -24,4 +24,6 @@ Gem::Specification.new do |spec|
   spec.add_dependency "fech"
   spec.add_dependency "remote_table"
   spec.add_dependency "american_date"
+  spec.add_dependency "sqlite3"
+  spec.add_dependency "sequel"
 end

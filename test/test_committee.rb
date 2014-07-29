@@ -3,11 +3,11 @@ require 'minitest/autorun'
 
 class TestCommittee < MiniTest::Test
   def setup
-    DB = Sequel.connect('sqlite://ftm.db')
+    db = Sequel.connect('sqlite://ftm.db')
     detail_file = File.readlines('test/cm.txt').to_a
     cm_detail   = Fech::Committee.new(2012, headers: Fech::Committee::HEADERS[:detail][:headers])
 
-    @db_test = Fech::Committee.new(2012, format: :db, connection: [DB, :committee])
+    @db_test = Fech::Committee.new(2012, format: :db, connection: [db, :committee])
 
     summary_file = File.readlines('test/webk.txt').to_a
     cm_summary   = Fech::Committee.new(2012, headers: Fech::Committee::HEADERS[:summary_all][:headers])
