@@ -18,7 +18,8 @@ class TestCommittee < MiniTest::Test
   end
 
   def test_that_db_option_is_formatted_correctly
-    assert_equal @db_test.table_exist?, false
+    @db_test.create_table(@summary_row)
+    assert_equal @db_test.table_exist?, true
   end
 
   def test_that_committee_detail_is_properly_loaded
