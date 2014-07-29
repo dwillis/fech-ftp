@@ -3,11 +3,12 @@ require 'minitest/autorun'
 
 class TestCommittee < MiniTest::Test
   def setup
-    db = Sequel.connect('sqlite://ftm.db')
+    db = Sequel.sqlite # synonymous with Sequel.connect; test assumes the table was not created yet.
     detail_file = File.readlines('test/cm.txt').to_a
-    cm_detail   = Fech::Committee.new(2012, headers: Fech::Committee::HEADERS[:detail][:headers])
+    detail_head = Fech::Committee::HEADERS[:detail][:headers]
 
-    @db_test = Fech::Committee.new(2012, format: :db, connection: [db, :committee])
+    cm_detail   = Fech::Committee.new(2012, headers: detail_head)
+    @db_test = Fech::Committee.new(2012, headers: detail_head, format: :db, connection: [db, :committee])
 
     summary_file = File.readlines('test/webk.txt').to_a
     cm_summary   = Fech::Committee.new(2012, headers: Fech::Committee::HEADERS[:summary_all][:headers])
@@ -17,7 +18,7 @@ class TestCommittee < MiniTest::Test
   end
 
   def test_that_db_option_is_formatted_correctly
-    assert_equal @db_test.table_empty?, true
+    assert_equal @db_test.table_exist?, false
   end
 
   def test_that_committee_detail_is_properly_loaded
