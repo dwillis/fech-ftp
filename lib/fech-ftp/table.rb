@@ -36,6 +36,25 @@ module Fech
     # the @receiver obj is the database itself.
     # This assumes the table needs to be created.
 
+    def table_exist?
+      @receiver.respond_to? :columns
+    end
+
+    def create_table(row)
+      db, table = @receiver
+      table = table.to_s.pluralize.to_sym
+      db.create_table(table) { primary_key :id }
+
+      row.each do |k,v|
+        db.alter_table table do
+          add_column k, v.class
+        end
+      end
+
+      @receiver = db[table]
+      @receiver << row
+    end
+
     def fetch_file(&blk)
       zip_file = "#{@file}#{@cycle.to_s[2..3]}.zip"
       Net::FTP.open("ftp.fec.gov") do |ftp|
