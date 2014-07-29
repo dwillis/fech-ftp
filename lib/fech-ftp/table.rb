@@ -95,7 +95,13 @@ module Fech
     end
 
     def parse_date(date)
-      return Date.new(@cycle, 1,1) if date == '' && table_exist?
+      if date == '' && table_exist?
+        if table_exist?
+          return Date.new(@cycle, 1,1)
+        else
+          return ''
+        end
+      end
 
       if date.length == 8
         Date.strptime(date, "%m%d%Y")
