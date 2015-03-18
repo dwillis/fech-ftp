@@ -9,6 +9,8 @@ require "fech-ftp/individual_contribution"
 require "fech-ftp/table_methods"
 require "net/ftp"
 require 'zip'
+require 'active_support'
+require 'active_support/deprecation'
 require 'remote_table'
 require 'american_date'
 require 'sqlite3'
