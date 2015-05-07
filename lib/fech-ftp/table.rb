@@ -78,7 +78,7 @@ module Fech
         elsif h == :filing_id
           [h, ->(line) { line[i].to_i }]
         elsif h.to_s =~ /_date/
-          [h, ->(line) { parse_date(line[i]) if line[i] != '' }]
+          [h, ->(line) { parse_date(line[i]) }]
         else
           [h, ->(line) { line[i] }]
         end
@@ -87,8 +87,10 @@ module Fech
 
     def format_row(line, records={})
       line = line.encode('UTF-8', invalid: :replace, replace: ' ').chomp.split("|")
-      @parser.each { |k,blk| records[k] = blk.call(line) }
-      return hash
+      @parser.each_with_index do |(k,blk),i|
+        records[k] = blk.call(line) if line[i]
+      end
+      return records
     end
 
     def parse_date(date)
