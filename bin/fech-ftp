@@ -2,4 +2,4 @@
 
 require 'fech-ftp'
 
-Fech::FechFTP::Utilities.cli_start
+Fech::CLI.start
