@@ -12,5 +12,10 @@ module Fech
         define_singleton_method(meth, action)
       end
     end
+
+    def method_missing(meth, cycle)
+      table = new(cycle, self::HEADERS[:detail])
+      table.retrieve_data.select { |candidate| candidate[:party] == meth.upcase }
+    end
   end
 end
