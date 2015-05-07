@@ -1,10 +1,6 @@
 module Fech
   module Dispatcher
-    def download(params={})
-
-    end
-
-    def dataset(table, subset='')
+    def dataset(table, subset)
       table = "#{table.capitalize}#{subset.capitalize}"
       if Fech.const_defined?(table)
         Fech.const_get("#{table.capitalize}#{subset.capitalize}")
