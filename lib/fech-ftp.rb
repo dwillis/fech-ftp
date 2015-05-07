@@ -7,6 +7,8 @@ require "fech-ftp/candidate_contribution"
 require "fech-ftp/committee_contribution"
 require "fech-ftp/individual_contribution"
 require "fech-ftp/table_methods"
+require "fech-ftp/dispatcher"
+require "fech-ftp/cli"
 require "net/ftp"
 require 'zip'
 require 'active_support'
