@@ -9,8 +9,9 @@ module Fech
     method_option :format, :type => :string, :require => true, :alias => "-f"
     method_option :contributions, :alias => "-c", :default => ""
     method_option :year, :type => :numeric, :require => true, :alias => "-y"
+    method_option :source, :type => :string, :alias => "-s"
 
-    def download(table_name="", meth="")
+    def download(table_name, meth, dest=".")
       table = dataset(table_name, options[:contributions])
       opts = options.inject({}){|opt,(k,v)| opt[k.to_sym] = v; opt}
       opts[:format] = opts[:format].to_sym
