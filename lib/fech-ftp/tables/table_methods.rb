@@ -6,8 +6,7 @@ module Fech
           attrs = self::HEADERS[meth] || self::HEADERS
           attrs.merge!(opts)
           table = new(cycle, attrs)
-          table.parse!
-          table.save
+          table.record!
         end
 
         define_singleton_method(meth, action)

@@ -1,17 +1,15 @@
 module Fech
   class Table
     def initialize(election_year, opts={})
-      @election = election_year
-      @headers  = opts[:headers]
-      @receiver = Dispatcher.new(opts)
+      @election     = election_year
+      @headers      = opts[:headers]
+      @file_handler = FileHandler.new(opts)
     end
 
-    def parse!
-      zip_file = @receiver.fetch_file
-    end
-
-    def convert
-      @receiver.formatted_lines.map { |x| parse_line(x) }
+    def lines
+      @lines ||= File.readlines @file_handler.download_and_extract.map do |line|
+        parse_line(line)
+      end
     end
 
     def parse_line(line, record={})
