@@ -6,24 +6,32 @@ module Fech
       @destination = opts[:destination]
       @keep_source = opts[:source]
       @output      = []
+      @input       = []
     end
 
-    def <<(record)
-      case @format.to_sym
-      when :csv then @output << record.values
-      when :db  then @output << stuff
+    def parse_date(date)
+      if date == '' && table_exist?
+        if table_exist?
+          return Date.new(@year, 1,1)
+        else
+          return ''
+        end
+      end
+
+      if date.length == 8
+        Date.strptime(date, "%m%d%Y")
       else
-        @output << record
+        Date.parse(date)
       end
     end
 
     # log into the FEC FTP server and download relevant file
 
-    def fetch_file(&blk)
-      zip_file = "#{@file}#{@cycle.to_s[2..3]}.zip"
+    def fetch_file
+      zip_file = "#{@file}#{@year.to_s[2..3]}.zip"
       Net::FTP.open("ftp.fec.gov") do |ftp|
         ftp.login
-        ftp.chdir("./FEC/#{@cycle}")
+        ftp.chdir("./FEC/#{@year}")
         begin
           ftp.get(zip_file, "./#{zip_file}")
         rescue Net::FTPPermError
@@ -31,11 +39,7 @@ module Fech
         end
       end
 
-      unzip(zip_file, &blk)
-    end
-
-    def retrieve_data
-      fetch_file { |row| enter_row(row) }
+      unzip(zip_file)
     end
 
     # the @receiver obj is the database itself.
@@ -65,17 +69,17 @@ module Fech
       @source_file
     end
 
-    def unzip(zip_file, &blk)
+    # unzip, delete the compressed file
+    # yield file content(s) to_enum, map with headers.
+
+    def unzip(zip_file)
       Zip::File.open(zip_file) do |zip|
         zip.each do |entry|
-          entry.extract("#{@dest}/#{entry.name}") if !File.file?(entry.name)
-          File.delete(zip_file)
-          File.foreach(entry.name) do |row|
-            yield row
-          end
-          File.delete(entry.name)
+          @file = entry.extract("#{@dest}/#{entry.name}") if !File.file?(entry.name)
         end
       end
+
+      return @file
     end
   end
 end
