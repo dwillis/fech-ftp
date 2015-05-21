@@ -1,45 +1,33 @@
 module Fech
-  class FileHandler
-    def initialize(year, opts={})
-      @year        = year
-      @format      = opts[:format]
-      @destination = opts[:destination]
-      @keep_source = opts[:source]
-      @output      = []
-      @input       = []
-    end
-
-    def parse_date(date)
-      if date == '' && table_exist?
-        if table_exist?
-          return Date.new(@year, 1,1)
-        else
-          return ''
-        end
-      end
-
-      if date.length == 8
-        Date.strptime(date, "%m%d%Y")
-      else
-        Date.parse(date)
-      end
-    end
-
+  module FileHandler
     # log into the FEC FTP server and download relevant file
 
-    def fetch_file
-      zip_file = "#{@file}#{@year.to_s[2..3]}.zip"
-      Net::FTP.open("ftp.fec.gov") do |ftp|
-        ftp.login
-        ftp.chdir("./FEC/#{@year}")
-        begin
-          ftp.get(zip_file, "./#{zip_file}")
-        rescue Net::FTPPermError
-          raise 'File not found - please try the other methods'
-        end
+    def parse_date(date)
+      return Date.new(1, 1, @year) if date.empty?
+      date.length == 8 ? Date.strptime(date, "%m%d%Y") : Date.parse(date)
+    end
+
+    def zip_file
+      "#{@properties[:file]}#{@properties[:year].to_s[2..3]}.zip"
+    end
+
+    def file_downloaded?
+      File.exist? "#{@destination}/#{zip_file}"
+    end
+
+    def txt_file
+      "#{@properties[:file]}.txt"
+    end
+
+    # unzip, delete the compressed file
+    # yield file content(s) to_enum, map with headers.
+
+    def extract
+      Zip::File.open(zip_file) do |zip|
+        zip.extract txt_file, "#{@destination}/#{txt_file}"
       end
 
-      unzip(zip_file)
+      return File.readlines "#{@destination}/#{txt_file}"
     end
 
     # the @receiver obj is the database itself.
@@ -63,23 +51,6 @@ module Fech
 
       @receiver = db[table]
       @receiver << row
-    end
-
-    def keep_source_file?
-      @source_file
-    end
-
-    # unzip, delete the compressed file
-    # yield file content(s) to_enum, map with headers.
-
-    def unzip(zip_file)
-      Zip::File.open(zip_file) do |zip|
-        zip.each do |entry|
-          @file = entry.extract("#{@dest}/#{entry.name}") if !File.file?(entry.name)
-        end
-      end
-
-      return @file
     end
   end
 end

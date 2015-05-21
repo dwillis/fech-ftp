@@ -2,11 +2,10 @@ module Fech
   class Table
     class_eval do
       [:detail, :summary_all, :linkage, :summary_current].each do |meth|
-        action = lambda do |cycle, opts={}|
+        action = lambda do |year, opts={}|
           attrs = self::HEADERS[meth] || self::HEADERS
-          attrs.merge!(opts)
-          table = new(cycle, attrs)
-          table.record!
+          attrs[:year] = year
+          attrs.merge(opts)
         end
 
         define_singleton_method(meth, action)

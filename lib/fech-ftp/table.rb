@@ -1,31 +1,50 @@
 module Fech
   class Table
-    def initialize(election_year, opts={})
-      @election     = election_year
-      @headers      = opts[:headers]
-      @file_handler = FileHandler.new(opts)
+    include Fech::FileHandler
+
+    def initialize(opts={})
+      @destination = opts[:destination]
+      @year        = opts[:year]
+      @properties  = opts[:properties]
     end
 
-    def lines
-      @lines ||= File.readlines @file_handler.download_and_extract.map do |line|
-        parse_line(line)
-      end
-    end
-
-    def parse_line(line, record={})
-      @headers.each_with_index do |k,i|
-        if h.to_s =~ /cash|amount|contributions|total|loan|transfer|debts|refund|expenditure/
-          record[k] = line[i].to_f
-        elsif h == :filing_id
-          record[k] = line[i].to_i
-        elsif h.to_s =~ /_date/
-          record[k] = @receiver.parse_date line[i]
-        else
-          record[k] = line[i]
+    def download
+      Net::FTP.open("ftp.fec.gov") do |ftp|
+        ftp.login
+        begin
+          ftp.get(zip_file, "./#{zip_file}")
+        rescue Net::FTPPermError
+          false
         end
       end
+    end
 
-      return record
+    private
+
+    def table_rows
+      @table_rows ||= extract.inject({}) do |dict, values|
+        procs.each_with_index do |p,index|
+          dict[headers[index]] = p.call values[index]
+        end
+
+        dict
+      end
+    end
+
+    def headers
+      @properties[:headers]
+    end
+
+    def procs
+      @procs ||= headers.map do |header|
+        if header.to_s =~ /cash|amount|contributions|total|loan|transfer|debts|refund|expenditure/
+          ->(item) { item.to_f }
+        elsif header == :filing_id
+          ->(item) { item.to_i }
+        elsif header.to_s =~ /_date/
+          ->(item) { parse_date(item) }
+        end
+      end
     end
   end
 end

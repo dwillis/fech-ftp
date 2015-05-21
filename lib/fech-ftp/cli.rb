@@ -15,7 +15,8 @@ module Fech
       opts = options.inject({}){|opt,(k,v)| opt[k.to_sym] = v; opt}
       opts[:format] = opts[:format].to_sym
       if table.respond_to? meth
-        table.send(meth, options[:year], opts)
+        table_klass = table.send(meth, options[:year], opts)
+        table_klass.download
       else
         raise 'invalid method'
       end
