@@ -3,6 +3,7 @@ module Fech
     include Fech::FileHandler
 
     def initialize(opts={})
+      @headers     = HEADERS[opts[:meth]]
       @destination = opts[:destination]
       @year        = opts[:year]
       @properties  = opts[:properties]
@@ -22,12 +23,9 @@ module Fech
     private
 
     def table_rows
-      @table_rows ||= extract.inject({}) do |dict, values|
-        procs.each_with_index do |p,index|
-          dict[headers[index]] = p.call values[index]
-        end
-
-        dict
+      extract.map do |row|
+        values = procs.each_with_index { |p,index| p.call(values[index]) }
+        Hash[headers.zip values]
       end
     end
 

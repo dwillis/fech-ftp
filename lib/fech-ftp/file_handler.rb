@@ -1,5 +1,7 @@
 module Fech
   module FileHandler
+
+    
     # log into the FEC FTP server and download relevant file
 
     def parse_date(date)
