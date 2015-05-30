@@ -2,97 +2,111 @@ require 'thor'
 require 'pry'
 module Fech
   class TableProperties
-    def initialize(properties={})
-      @destination = properties[:dest]
-      @filename    = properties[:file]
-      @year        = properties[:year]
-      @col_headers = properties[:headers]
-      @format      = properties[:format]
+    def initialize(table_name, properties={})
+      @table       = FTP_SETTINGS['tables'][table_name.downcase]
+      @destination = properties['destination']
+      @subtable    = properties['subtable']
+      @year        = properties['year']
+      @format      = properties['format']
       @lines       = []
     end
 
-    def save_file?
-      @format[:keep]
+    def table_attrs
+      @table_attrs ||= @table[@subtable]
+    end
+
+    # change to table_name from table
+    def struct
+      @struct ||= Struct.new(table_attrs['table'], *headers) do
+        table_attrs['headers'].each do |header|
+          if header =~ /contribution/
+
+          elsif header =~ /_date/
+            define_method(header, ->(){  })
+        end
+      end
+    end
+
+    def filename
+      @filename ||= table_attrs['filename'] + @year.to_s[2..3]
     end
 
     def ftp_destination
-      "#{@destination}/#{@filename}.zip"
+      "#{@destination}/#{filename}.zip"
     end
 
     def txt_file
-      "#{@destination}/#{@filename}.txt"
+      "#{@destination}/#{filename}.txt"
     end
 
     def ftp_path
-      "./FEC/#{@year.to_s[2..3]}/#{@filename}.zip"
+      "./FEC/#{@year}/#{filename}.zip"
     end
 
     def <<(stream)
       stream.readlines.each do |ln|
         line = ln.split("|").pop
-        @lines << Hash[@col_headers.zip line]
+        @lines << struct.new(*line)
       end
     end
 
-    def export
-      case object
-      when condition
+    def zip_path
 
-      end
+    end
+
+    def export
+    end
+
+    def export_csv
+    end
+
+    def export_db
+
+    end
+
+    def export_objects
+    end
+
+    def exist?
+      @table.is_a?(Hash) && @table[@subtable].is_a?(Hash)
     end
   end
 
   module CLIFileHelper
-    def download_table_data(properties)
-      @table = TableProperties.new(properties)
-      Net::FTP.open("ftp.fec.gov") do |ftp|
-        begin
-          ftp.login
-          ftp.get(@table.ftp_path, @table.ftp_destination)
-        rescue Net::FTPPermError
-          raise 'connection failure'
+    def download_table_data(table)
+      if table.exist?
+        binding.pry
+      #   Net::FTP.open(FTP_SETTINGS['url']) do |ftp|
+      #     begin
+      #       ftp.login
+      #       ftp.get(table.ftp_path, table.ftp_destination)
+      #     rescue Net::FTPPermError
+      #       raise 'connection failure'
+      #     end
+      #   end
+
+        Zip::File.open(table.ftp_destination) do |zip|
+          table << zip.first.get_input_stream
         end
+        table.export
+      else
+        raise 'error'
       end
-
-      Zip::File.open(@table.zip_path) do |zip|
-        @table << zip.first.get_input_stream
-      end
-
-      @table.export
     end
   end
 
   class CLI < Thor
-    include Fech::CLIFileHelper
-    # fech-ftp download individual 2012 --detail=format:csv
-    # fech-ftp download committee -c 2012 --format=csv
+    include CLIFileHelper
+
     desc "Download individual records to <DIR> by specified election year", "Download individual records by year"
+    # fech-ftp download candidate --subtable=contribution --format=csv -y 2012 -d ~/Matt/Downloads
     method_option :format, :type => :string, :require => true, :alias => "-f"
-    method_option :contributions, :alias => "-c", :default => ""
+    method_option :subtable, :type => :string, :alias => "-s", :default => ''
     method_option :year, :type => :numeric, :require => true, :alias => "-y"
+    method_option :destination, :type => :string, :alias => '-d', :default => '.'
 
-    def download(table_name, subtable, dest=".")
-      options.map! { |k,v| options[k.to_sym] = v }
-      table_name = "#{table_name.capitalize}#{options[:contributions].capitalize}"
-      if Fech.const_defined?(table_name)
-        headers = Fech.get_const("#{table_name}::HEADERS")
-        if !headers.key?(:file)
-          headers = headers[subtable.to_sym]
-        end
-      else
-        raise 'some error'
-      end
-
-      properties = headers.merge(options)
-      download_table_data(properties)
-      # with the first argument in the CLI command, a class pertaining to it is found
-      # and returned as a constant.
-      # FEC GET -> get zip file
-      # FEC EXRACT AND PARSE -> extract zip file and parse
-      # FEC EXPORT -> export into desired format
-      # FEC CLEANUP -> cleanup settings (i.e. remove downloaded file, etc)
-      # a check is made to ensure the correct sub-table was found
-      # The table gets initialized with the passed attributes
+    def download(table_name)
+      download_table_data TableProperties.new(table_name, options)
     end
   end
 end
