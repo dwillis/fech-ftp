@@ -1,7 +1,9 @@
 require 'fech'
-require "fech-ftp/version"
-require "fech-ftp/cli"
-require "net/ftp"
+require 'fech-ftp/version'
+require 'fech-ftp/cli_helper'
+require 'fech-ftp/cli'
+require 'fech-ftp/table'
+require 'net/ftp'
 require 'zip'
 require 'yaml'
 require 'active_support'
