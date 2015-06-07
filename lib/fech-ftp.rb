@@ -15,7 +15,7 @@ require 'sequel'
 require 'csv'
 
 module Fech
-  FTP_SETTINGS = YAML.load_file('something.yaml')
+  FTP_SETTINGS = YAML.load_file('config.yaml')
   class Utilities
     def self.superpacs
       url = "http://www.fec.gov/press/press2011/ieoc_alpha.shtml"
