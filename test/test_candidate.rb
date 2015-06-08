@@ -1,27 +1,33 @@
 require 'fech-ftp'
 require 'minitest/autorun'
-
+require 'pry'
 class TestCandidate < MiniTest::Test
   def setup
-    detail_file = File.readlines('test/cn.txt').to_a
-    candidate_detail = Fech::Candidate.new(2012, headers: Fech::Candidate::HEADERS[:detail][:headers])
-
-    summary_file = File.readlines('test/webl.txt').to_a
-    candidate_summary = Fech::Candidate.new(2012, headers: Fech::Candidate::HEADERS[:summary_current][:headers])
-
-    @detail_row = candidate_detail.format_row(detail_file[3])
-    @summary_row = candidate_summary.format_row(summary_file[3])
+    @summary_table = Fech::Table.new('candidate', year: 2012, format: 'csv', subtable: 'summary')
+    @detail_table  = Fech::Table.new('candidate', year: 2012, format: 'csv', subtable: 'detail')
+    @summary_table << File.open('./test/webl.txt', 'r')
+    @detail_table  << File.open('./test/cn.txt', 'r')
   end
 
-  def test_candidate_id_loads_properly
-    assert @detail_row.fetch(:candidate_id) == "H0AL05163"
+  def test_table_loads_ten_lines_of_data
+    assert @detail_table.lines.length, 10
+  end
+
+  def test_candidate_id_is_correct
+    mo_brooks = @detail_table.lines[3]
+    assert mo_brooks.candidate_id == "H0AL05163"
+  end
+
+  def test_struct_name_is_candidate_detail
+    assert_kind_of Struct::CandidateDetail, @detail_table.lines[0]
+  end
+
+  def test_struct_name_is_candidate_summary
+    assert_kind_of Struct::CandidateSummary, @summary_table.lines[0]
   end
 
   def test_candidate_dollar_amts_are_floats
-    assert_kind_of Float, @summary_row.fetch(:total_receipts)
-  end
-
-  def test_that_summary_creates_dates
-    assert_equal Date.parse('11/27/2013'), @summary_row.fetch(:coverage_end_date)
+    line = @summary_table.lines[3]
+    assert_kind_of Float, line.total_receipts
   end
 end
