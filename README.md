@@ -25,7 +25,7 @@ Fech-FTP can be used by itself or in combination with Fech. To retrieve canonica
 ```ruby
 require 'fech-ftp'
 ftp = Fech::FTP.new
-candidates = ftp.fetch_fec_file('candidate', year: 2014, format: 'struct', subtable: 'summary')
+candidates = ftp.fetch_fec_file('candidate', year: 2014, format: 'struct', subtable: 'detail')
 candidates.first
 # => <struct Struct::CandidateDetail
 #    candidate_id="H0AK00097",
