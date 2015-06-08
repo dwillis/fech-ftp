@@ -1,5 +1,5 @@
 module Fech
-  class FechFTP
+  class FTP
     include CLIFileHelper
 
     def fetch_fec_file(table, year, opts={})
