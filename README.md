@@ -20,12 +20,45 @@ Or install it yourself as:
 
 ## Usage
 
-Fech-FTP can be used by itself or in combination with Fech. To retrieve canonical details about candidates for an election cycle, pass the cycle into the following constructor:
+Fech-FTP can be used by itself or in combination with Fech. To retrieve canonical details about candidates for an election cycle, pass the cycle into the following constructor in your ruby environment.
 
 ```ruby
 require 'fech-ftp'
-cands = Fech::Candidate.detail(2014)
-cands.first # => {:candidate_id=>"H0AK00097", :candidate_name=>"COX, JOHN ROBERT", :party=>"REP", :election_year=>"2012", :office_state=>"AK", :office=>"H", :district=>"00", :incumbent_challenger_status=>"C", :candidate_status=>"N", :committee_id=>"C00525261", :street_one=>"PO BOX 1092", :street_two=>"", :city=>"ANCHOR POINT", :state=>"AK", :zipcode=>"995561092"}
+ftp = Fech::FTP.new
+candidates = ftp.fetch_fec_file('candidate', year: 2014, format: 'struct', subtable: 'summary')
+candidates.first
+# => <struct Struct::CandidateDetail
+#    candidate_id="H0AK00097",
+#    candidate_name="COX, JOHN ROBERT",
+#    party="REP",
+#    election_year="2012",
+#    office_state="AK",
+#    office="H",
+#    district="00",
+#    incumbent_challenger_status="C",
+#    candidate_status="N",
+#    committee_id="C00525261",
+#    street_one="PO BOX 1092",
+#    street_two="",
+#    city="ANCHOR POINT",
+#    state="AK",
+#    zipcode="995561092">
+
+```
+
+### CLI
+
+In this update, you can now access the records via command line. To use, follow this format:
+
+```
+format:
+$ fech-ftp download <Table>-<Category> --year=<election year YYYY> --format=<Formats*> --destination=~/Matt/Downloads
+
+example:
+
+$ fech-ftp download candidate-detail --year=2012 --format=csv
+
+* currently this tool supports converting the data into a csv file or be made into plain ruby objects (as structs)
 ```
 
 If you want to have the data transferred into an csv, add the property `format: :csv`, like so:
