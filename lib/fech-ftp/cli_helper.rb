@@ -1,25 +1,14 @@
 module Fech
   module CLIFileHelper
-    def fetch_zip_file
-      Net::FTP.open(FTP_SETTINGS['url']) do |ftp|
-        begin
-          ftp.login
-          ftp.get(@table.ftp_path, @table.ftp_destination)
-        rescue Net::FTPPermError
-          raise 'connection failure'
+    def process_request(tables, destination, options={})
+      tables.each do |table|
+        fec_table = Table.new(destination, table.merge(options))
+        fec_table.download_table_data
+
+        if fec_table.export_format == 'csv'
+          puts "#{fec_table.export_filename}.csv placed in #{destination}."
         end
       end
-    end
-
-    def download_table_data
-      raise 'Table Not Recognized' if !@table.exist?
-      fetch_zip_file if !File.exist?(@table.ftp_destination)
-      Zip::File.open(@table.ftp_destination) do |zip|
-        @table << zip.first.get_input_stream
-      end
-
-      # to do - add feature to delete file depending on option
-      @table.export
     end
   end
 end

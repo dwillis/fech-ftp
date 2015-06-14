@@ -1,23 +1,18 @@
 module Fech
   class Table
-    attr_reader :lines
-    def initialize(table_name, properties={})
-      @table       = FTP_SETTINGS[:tables][table_name.downcase]
-      @col_types   = FTP_SETTINGS[:tables][:col_types]
-      @destination = properties[:destination]
-      @subtable    = properties[:subtable]
-      @year        = properties[:year]
-      @format      = properties[:format]
-      @lines       = []
+    attr_reader :lines, :headers, :table, :category
+    def initialize(destination, properties={})
+      @destination   = destination
+      @table         = properties['table']
+      @fec_file      = properties['fec_file']
+      @headers       = properties['headers']
+      @category      = properties['category']
+      @year          = properties['year']
+      @export_format = properties['format']
     end
 
-    def table_attrs
-      @table_attrs ||= @table[@subtable]
-    end
-
-    # change to table_name from table
     def struct
-      @struct ||= Struct.new(table_attrs[:table], *table_attrs[:headers]) do
+      @struct ||= Struct.new(table, *headers) do
         def parse_date(date)
           if date.empty?
             nil
@@ -29,7 +24,7 @@ module Fech
         end
 
         def format!
-          types = FTP_SETTINGS[:tables][:col_types]
+          types = FTP_SETTINGS[:col_types]
           members.each do |header|
             if Regexp.new(types[:float]) =~ header
               self[header] = self[header].to_f
@@ -45,27 +40,8 @@ module Fech
       end
     end
 
-    def export
-      case @format
-      when 'csv' then to_csv
-      when 'db'  then to_db
-      else
-        @lines
-      end
-    end
-
-    def to_db
-      # to do
-    end
-
-    def to_csv
-      CSV.open(export_filename, 'w+', headers: table_attrs[:headers], write_headers: true) do |csv|
-        @lines.each { |line| csv << line.values }
-      end
-    end
-
     def filename
-      @filename ||= table_attrs[:filename] + @year.to_s[2..3]
+      "#{@fec_file}#{@year.to_s[2..3]}"
     end
 
     def ftp_destination
@@ -81,19 +57,57 @@ module Fech
     end
 
     def export_filename
-      "#{@destination}/#{@table.capitalize}#{@subtable.capitalize}_#{year}"
+      "#{@destination}/#{table}_#{@year}"
     end
 
-    def <<(stream)
-      stream.readlines.each do |ln|
-        line = ln.split("|")
-        line[-1].chomp!
-        @lines << struct.new(*line).format!
+    def fetch_zip_file
+      Net::FTP.open(FTP_SETTINGS['url']) do |ftp|
+        begin
+          ftp.login
+          file_size = ftp.size(ftp_path).fdiv(1_000_000).round(1)
+          puts "File size for #{table} is #{file_size} MB's. This may take a while..."
+          ftp.get(ftp_path, ftp_destination)
+        rescue Net::FTPPermError
+          raise 'connection failure'
+        end
       end
     end
 
-    def exist?
-      @table.is_a?(Hash) && @table[@subtable].is_a?(Hash)
+    def output_endpoint
+      @output_endpoint ||= if @format == 'csv'
+        CSV.open("#{export_filename}.csv", 'w+', headers: headers, write_headers: true)
+      elsif @format == 'db'
+        # ???
+      else
+        []
+      end
+    end
+
+    def download_table_data
+      fetch_zip_file if !File.exist?(ftp_destination)
+      Zip::File.open(ftp_destination) do |zip|
+        # parse(zip.first.get_input_stream)
+        file = zip.first
+        stream = file.get_input_stream
+        # prct = Array.new(100) { |i| (chunk_size * i) + chunk_size }
+        progress_bar = Array.new(50)
+        records = 0
+        until stream.eof? # '[###########-------] 20% complete'
+          records += 1
+          progress = 100 - ((file.size - stream.pos).fdiv(file.size) * 100).round(1)
+          progress_bar.map!.with_index { |x,i| i > (progress / 2) ? '-' : '#' }.reverse
+          $stdout.flush
+
+          line = stream.gets.split("|")
+          line[-1].chomp!
+          output_endpoint << struct.new(*line).format!
+          print "  Converting.... [ #{progress_bar.join} ] #{progress.round(1)}% complete, #{records} records so far \r"
+        end
+
+        output_endpoint.close if output_endpoint.is_a?(CSV)
+      end
+
+      File.delete(ftp_destination)
     end
   end
 end
