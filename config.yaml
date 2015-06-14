@@ -4,17 +4,17 @@ db:
   dbname: DB_NAME
   dblogin: DB_LOGIN
   dbpass: DB_PASS
-:tables:
-  :col_types:
-    :date: _date
-    :integer: filing_id
-    :float: cash|amount|contributions|total|loan|transfer|debts|refund|expenditure
+:col_types:
+  :date: _date
+  :integer: filing_id
+  :float: cash|amount|contributions|total|loan|transfer|debts|refund|expenditure
+tables:
   individual:
-    summary:
-      :table: IndividualContributions
-      :description: Political contributions made out to PACs from individuals
-      :filename: indiv
-      :headers:
+    - category: summary
+      table: IndividualContributions
+      description: Political contributions made out to PACs from individuals
+      fec_file: indiv
+      headers:
         - committee_id
         - amendment_indicator
         - report_type
@@ -37,11 +37,11 @@ db:
         - memo_txt
         - fec_record_number
   committee:
-    summary:
-      :table: CommitteeSummary
-      :description: Summary of all contributions made to a particular committee within an election cycle
-      :filename: webk
-      :headers:
+    - category: summary
+      table: CommitteeSummary
+      description: Summary of all contributions made to a particular committee within an election cycle
+      fec_file: webk
+      headers:
         - committee_id
         - committee_name
         - type
@@ -69,22 +69,22 @@ db:
         - party_coordinated_expenditures
         - nonfederal_share_expenditures
         - coverage_end_date
-    link:
-      :table: CommitteeLink
-      :filename: ccl
-      :description: Committee's with established links with candidates.
-      :headers:
+    - category: link
+      table: CommitteeLink
+      fec_file: ccl
+      description: Committee's with established links with candidates.
+      headers:
         - committee_id
         - candidate_election_year
         - election_year
         - candidate_id
         - type
         - designation
-        - linkage_id
-    detail:
-      :table: CommitteeDetail
-      :filename: cm
-      :headers:
+          - linkage_id
+    - category: detail
+      table: CommitteeDetail
+      fec_file: cm
+      headers:
         - committee_id
         - committee_name
         - treasurer
@@ -101,10 +101,10 @@ db:
         - connected_organization
         - candidate_id
   candidate:
-    contribution:
-      :table: CandidateContribution
-      :filename: oth
-      :headers:
+    - category: contribution
+      table: CandidateContribution
+      fec_file: oth
+      headers:
         - committee_id
         - amendment
         - report_type
@@ -127,10 +127,10 @@ db:
         - memo_code
         - memo_text
         - fec_record_number
-    summary:
-      :table: CandidateSummary
-      :filename: webl
-      :headers:
+    - category: summary
+      table: CandidateSummary
+      fec_file: webl
+      headers:
         - candidate_id
         - candidate_name
         - status
@@ -161,10 +161,10 @@ db:
         - coverage_end_date
         - individual_refunds
         - committee_refunds
-    current:
-      :table: CandidateCurrent
-      :filename: weball
-      :headers:
+    - category: current
+      table: CandidateCurrent
+      fec_file: weball
+      headers:
         - candidate_id
         - candidate_name
         - status
@@ -195,10 +195,10 @@ db:
         - coverage_end_date
         - individual_refunds
         - committee_refunds
-    detail:
-      :table: CandidateDetail
-      :filename: cn
-      :headers:
+    - category: detail
+      table: CandidateDetail
+      fec_file: cn
+      headers:
         - candidate_id
         - candidate_name
         - party
