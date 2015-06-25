@@ -1,19 +1,27 @@
 ---
 url: ftp.fec.gov
-db:
-  dbname: DB_NAME
-  dblogin: DB_LOGIN
-  dbpass: DB_PASS
+:db:
+  :adapter: sqlite
+  :host: localhost
+  :database: fech-ftp
+  :user: root
+  :password: password
 :col_types:
   :date: _date
   :integer: filing_id
   :float: cash|amount|contributions|total|loan|transfer|debts|refund|expenditure
 tables:
-  individual:
+  individuals:
     - category: summary
       table: IndividualContributions
       description: Political contributions made out to PACs from individuals
       fec_file: indiv
+      dbtable:
+        :class_name: SummaryIndividual
+        :table_name: summary_individuals
+        :primary_key: :trans_id
+        :foreign_keys:
+          - :committee_id
       headers:
         - committee_id
         - amendment_indicator
@@ -36,11 +44,16 @@ tables:
         - memo_cd
         - memo_txt
         - fec_record_number
-  committee:
+  committees:
     - category: summary
       table: CommitteeSummary
       description: Summary of all contributions made to a particular committee within an election cycle
       fec_file: webk
+      dbtable:
+        :class_name: SummaryCommittee
+        :table_name: :summary_committees
+        :foreign_keys:
+          - :committee_id
       headers:
         - committee_id
         - committee_name
@@ -72,6 +85,12 @@ tables:
     - category: link
       table: CommitteeLink
       fec_file: ccl
+      dbtable:
+        :class_name: CommitteeLink
+        :table_name: :committee_links
+        :foreign_keys:
+          - :candidate_id
+          - :committee_id
       description: Committee's with established links with candidates.
       headers:
         - committee_id
@@ -80,10 +99,16 @@ tables:
         - candidate_id
         - type
         - designation
-          - linkage_id
+        - linkage_id
     - category: detail
       table: CommitteeDetail
       fec_file: cm
+      dbtable:
+        :class_name: CommitteeDetail
+        :table_name: :committee_details
+        :foreign_keys:
+          - :candidate_id
+          - :committee_id
       headers:
         - committee_id
         - committee_name
@@ -100,10 +125,20 @@ tables:
         - category
         - connected_organization
         - candidate_id
-  candidate:
+  candidates:
     - category: contribution
       table: CandidateContribution
+      foreign_keys:
+        - :committee_id
+        - :other_committee_id
+        - :candidate_id
       fec_file: oth
+      dbtable:
+        :class_name: CandidateContribution
+        :table_name: :candidate_contributions
+        :foreign_keys:
+          - :candidate_id
+          - :committee_id
       headers:
         - committee_id
         - amendment
@@ -130,6 +165,11 @@ tables:
     - category: summary
       table: CandidateSummary
       fec_file: webl
+      dbtable:
+        :class_name: CandidateSummary
+        :table_name: candidate_summaries
+        :foreign_keys:
+          - :candidate_id
       headers:
         - candidate_id
         - candidate_name
@@ -164,6 +204,11 @@ tables:
     - category: current
       table: CandidateCurrent
       fec_file: weball
+      dbtable:
+        :class_name: CurrentCandidate
+        :table_name: :current_candidates
+        :foreign_keys:
+          - :candidate_id
       headers:
         - candidate_id
         - candidate_name
@@ -198,6 +243,12 @@ tables:
     - category: detail
       table: CandidateDetail
       fec_file: cn
+      dbtable:
+        :class_name: CandidateDetail
+        :table_name: :candidate_details
+        :foreign_keys:
+          - :candidate_id
+          - :committee_id
       headers:
         - candidate_id
         - candidate_name
