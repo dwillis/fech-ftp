@@ -1,14 +1,17 @@
 module Fech
   class Table
-    attr_reader :lines, :headers, :table, :category
+
+    attr_reader :lines, :headers, :table, :category, :export_format
     def initialize(destination, properties={})
       @destination   = destination
       @table         = properties['table']
       @fec_file      = properties['fec_file']
       @headers       = properties['headers']
       @category      = properties['category']
+      @receiver      = properties['format']
       @year          = properties['year']
-      @export_format = properties['format']
+      @bar           = '-' * 50
+      @rows          = []
     end
 
     def struct
@@ -60,12 +63,17 @@ module Fech
       "#{@destination}/#{table}_#{@year}"
     end
 
-    def fetch_zip_file
+    def zip_downloaded?
+      File.file?(ftp_destination)
+    end
+
+    def download_table_data
       Net::FTP.open(FTP_SETTINGS['url']) do |ftp|
         begin
           ftp.login
-          file_size = ftp.size(ftp_path).fdiv(1_000_000).round(1)
-          puts "File size for #{table} is #{file_size} MB's. This may take a while..."
+          compressed_size = ftp.size(ftp_path).fdiv(1_000_000).round(1)
+          print "Zip file size for #{table} is #{compressed_size} MB's. This may take a while...\n" if compressed_size > 40.0
+          $stdout.flush
           ftp.get(ftp_path, ftp_destination)
         rescue Net::FTPPermError
           raise 'connection failure'
@@ -73,38 +81,48 @@ module Fech
       end
     end
 
-    def output_endpoint
-      @output_endpoint ||= if @format == 'csv'
-        CSV.open("#{export_filename}.csv", 'w+', headers: headers, write_headers: true)
-      elsif @format == 'db'
-        # ???
-      else
-        []
+    def create_record(stream, total, saved = 0)
+      $stdout.flush
+      percent = saved.fdiv(total)
+      index = (percent * 50).to_i
+      @bar[index] = '#' if @bar[index] == '-'
+      print progress(percent, total, saved)
+      line = stream.gets.split('|')
+      line[-1].chomp!
+
+      return struct.new(*line).format!
+    end
+
+    def to_csv(stream, total, saved = 0)
+      CSV.open("#{export_filename}.csv", 'w+', headers: headers, write_headers: true) do |csv|
+        csv << create_record(stream, total, saved += 1) until stream.eof?
       end
     end
 
-    def download_table_data
-      fetch_zip_file if !File.exist?(ftp_destination)
+    def progress(percent, total, saved)
+      "  [ #{@bar} ] #{(percent * 100).round(1)}% complete - processing #{saved}/#{total} records\r"
+    end
+
+    def setup_db_columns(stream)
+      record = create_record(stream, total)
+      record.each do |k,v|
+        DB.add_column(@table, )
+      end
+    end
+
+    def decompress
       Zip::File.open(ftp_destination) do |zip|
-        # parse(zip.first.get_input_stream)
-        file = zip.first
-        stream = file.get_input_stream
-        # prct = Array.new(100) { |i| (chunk_size * i) + chunk_size }
-        progress_bar = Array.new(50)
-        records = 0
-        until stream.eof? # '[###########-------] 20% complete'
-          records += 1
-          progress = 100 - ((file.size - stream.pos).fdiv(file.size) * 100).round(1)
-          progress_bar.map!.with_index { |x,i| i > (progress / 2) ? '-' : '#' }.reverse
-          $stdout.flush
+        total_records = zip.first.get_input_stream.count
+        stream = zip.first.get_input_stream
 
-          line = stream.gets.split("|")
-          line[-1].chomp!
-          output_endpoint << struct.new(*line).format!
-          print "  Converting.... [ #{progress_bar.join} ] #{progress.round(1)}% complete, #{records} records so far \r"
+        if @receiver == 'csv'
+          to_csv(stream, total_records)
+        elsif @receiver == 'db'
+          setup_db_columns(stream)
+          DB[@table.to_sym] << create_record(stream, total_records, 1)
+        else
+          @rows << create_record(stream, total_records)
         end
-
-        output_endpoint.close if output_endpoint.is_a?(CSV)
       end
 
       File.delete(ftp_destination)
