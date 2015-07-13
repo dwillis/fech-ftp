@@ -34,7 +34,7 @@ If you want to have the data transferred into an csv, add the property `format: 
 Fech::Candidate.detail(2014, format: :csv)
 ```
 
-You can specify the location that the FEC zip files opened by fech-ftp are downloaded by adding the property `location`, with an absolute path to a directory that must include a trailing slash, like so:
+You can specify the location that the FEC zip files opened by fech-ftp are downloaded by adding the property `location`, with an absolute path to an _existing_ directory that must include a trailing slash, like so:
 
 ```ruby
 Fech::Candidate.detail(2014, location: "/tmp/fec/")
