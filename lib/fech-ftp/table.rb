@@ -5,6 +5,7 @@ module Fech
       @headers  = opts[:headers]
       @file     = opts[:file]
       @format   = opts[:format]
+      @location = opts[:location]
       @receiver = opts[:connection] || receiver
       @parser   = parser
     end
@@ -113,12 +114,13 @@ module Fech
     def unzip(zip_file, &blk)
       Zip::File.open(zip_file) do |zip|
         zip.each do |entry|
-          entry.extract("./#{entry.name}") if !File.file?(entry.name)
+          path = @location.nil? ? entry.name : @location + entry.name
+          entry.extract(path) if !File.file?(path)
           File.delete(zip_file)
-          File.foreach(entry.name) do |row|
+          File.foreach(path) do |row|
             blk.call(format_row(row))
           end
-          File.delete(entry.name)
+          File.delete(path)
         end
       end
     end
