@@ -1,8 +1,8 @@
-# Fech-FTP
+# fech-ftp
 
-A Ruby library for retrieving and parsing [FTP data downloads](http://www.fec.gov/finance/disclosure/ftp_download.shtml) from the Federal Election Commission. While Fech-FTP provides an API to some transaction data (contributions from a committee to a candidate and contributions between two committees), its main purpose is to provide a simple interface to the "[committee master](http://www.fec.gov/finance/disclosure/metadata/DataDictionaryCommitteeMaster.shtml)" and "[candidate master](http://www.fec.gov/finance/disclosure/metadata/DataDictionaryCandidateMaster.shtml)" files, with the ultimate goal of providing a way to connect individual transactions parsed by [Fech](https://github.com/NYTimes/Fech) with their canonical recipients.
+A Ruby library for retrieving and parsing [FTP data downloads](http://www.fec.gov/finance/disclosure/ftp_download.shtml) from the Federal Election Commission. While fech-ftp provides an API to some transaction data (contributions from a committee to a candidate and contributions between two committees), its main purpose is to provide a simple interface to the "[committee master](http://www.fec.gov/finance/disclosure/metadata/DataDictionaryCommitteeMaster.shtml)" and "[candidate master](http://www.fec.gov/finance/disclosure/metadata/DataDictionaryCandidateMaster.shtml)" files, with the ultimate goal of providing a way to connect individual transactions parsed by [Fech](https://github.com/NYTimes/Fech) with their canonical recipients.
 
-Fech-FTP is tested under Ruby 1.9.3, 2.0.0 and 2.1.0.
+fech-ftp is tested under Ruby 2.0.0, 2.1.X and 2.2.X.
 
 ## Installation
 
@@ -32,6 +32,12 @@ If you want to have the data transferred into an csv, add the property `format: 
 
 ```ruby
 Fech::Candidate.detail(2014, format: :csv)
+```
+
+You can specify the location that the FEC zip files opened by fech-ftp are downloaded by adding the property `location`, with an absolute path to a directory that must include a trailing slash, like so:
+
+```ruby
+Fech::Candidate.detail(2014, location: "/tmp/fec/")
 ```
 
 If you are using the [Sequel Gem](https://github.com/jeremyevans/sequel), you can pass in the DB table object as the `connection` property:
