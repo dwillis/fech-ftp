@@ -4,7 +4,7 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require 'fech-ftp/version'
 
 Gem::Specification.new do |spec|
-  spec.name          = "Fech-FTP"
+  spec.name          = "fech-ftp"
   spec.version       = Fech::Ftp::VERSION
   spec.authors       = ["Derek Willis"]
   spec.email         = ["dwillis@gmail.com"]
