@@ -6,6 +6,7 @@ module Fech
       @file     = opts[:file]
       @format   = opts[:format]
       @location = opts[:location]
+      @passive  = opts[:passive]
       @receiver = opts[:connection] || receiver
       @parser   = parser
     end
@@ -60,6 +61,7 @@ module Fech
     def fetch_file(&blk)
       zip_file = "#{@file}#{@cycle.to_s[2..3]}.zip"
       Net::FTP.open("ftp.fec.gov") do |ftp|
+        ftp.passive = true if @passive
         ftp.login
         ftp.chdir("./FEC/#{@cycle}")
         begin
