@@ -20,7 +20,7 @@ require 'csv'
 module Fech
   class Utilities
     def self.superpacs
-      url = "http://www.fec.gov/press/press2011/ieoc_alpha.shtml"
+      url = "http://classic.fec.gov/press/press2011/ieoc_alpha.shtml"
       t = RemoteTable.new url, :row_xpath => '//table/tr', :column_xpath => 'td', :encoding => 'windows-1252', :headers => %w{ row_id committee_id committee_name filing_frequency}
       t.entries
     end
