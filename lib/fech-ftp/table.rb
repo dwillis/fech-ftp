@@ -1,5 +1,7 @@
 module Fech
   class Table
+    AWS_URL = "https://cg-519a459a-0ea3-42c2-b7bc-fa1143481f74.s3-us-gov-west-1.amazonaws.com/bulk-downloads"
+
     def initialize(cycle, opts={})
       @cycle    = cycle
       @headers  = opts[:headers]
@@ -59,19 +61,13 @@ module Fech
     end
 
     def fetch_file(&blk)
-      zip_file = "#{@file}#{@cycle.to_s[2..3]}.zip"
-      Net::FTP.open("ftp.fec.gov") do |ftp|
-        ftp.passive = true if @passive
-        ftp.login
-        ftp.chdir("./FEC/#{@cycle}")
-        begin
-          ftp.get(zip_file, "./#{zip_file}")
-        rescue Net::FTPPermError
-          raise 'File not found - please try the other methods'
-        end
-      end
+      filename = "#{@file}#{@cycle.to_s[2..3]}.zip"
+      uri = URI("#{AWS_URL}/#{@cycle}/#{filename}")
+      response = Net::HTTP.get_response(uri)
 
-      unzip(zip_file, &blk)
+      if response.code == '200'
+        unzip(response.body, &blk)
+      end
     end
 
     def parser
@@ -114,15 +110,14 @@ module Fech
     end
 
     def unzip(zip_file, &blk)
-      Zip::File.open(zip_file) do |zip|
+      Zip::File.open_buffer(zip_file) do |zip|
         zip.each do |entry|
           path = @location.nil? ? entry.name : @location + entry.name
           entry.extract(path) if !File.file?(path)
-          File.delete(zip_file)
+
           File.foreach(path) do |row|
             blk.call(format_row(row))
           end
-          File.delete(path)
         end
       end
     end
